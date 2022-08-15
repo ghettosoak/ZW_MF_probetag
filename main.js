@@ -4,7 +4,11 @@ import './main.less'
 let orgID = 0;
 
 let loadOrgs = async () => {
-  let response = await fetch(`https://api.github.com/organizations?per_page=10&since=${orgID}`)
+  let response = await fetch(`https://api.github.com/organizations?per_page=10&since=${orgID}`, {
+    'Authorization': import.meta.env.VITE_GITLAB_PAT
+  }).catch((error) => {
+    console.error('FETCH ERROR: ', error)
+  });
   return response.json();
 }
 
@@ -26,13 +30,21 @@ let getOrgs = () => {
     });
 
     orgID = returnedOrgs[returnedOrgs.length - 1].id + 1;
+  }).catch((error) => {
+    console.error('PROCESSING ERROR: ', error)
   });
 
 }
 
+let setup = () => {
+  document.querySelector('.loadMore').addEventListener('click', getOrgs)
+  getOrgs();
+}
 
-document.querySelector('.loadMore').addEventListener('click', getOrgs)
+setup();
 
-getOrgs();
-
+export {
+  loadOrgs,
+  getOrgs
+}
 
